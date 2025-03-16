@@ -5,4 +5,4 @@ services:
     build: .
     container_name: fpl_optimization_tools
     volumes:
-      - .:/fpl-optimization
+      - /volume1/docker/fpl-optimization:/fpl-optimization
