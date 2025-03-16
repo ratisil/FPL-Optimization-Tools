@@ -4,11 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    # ports:  <-- Remove or comment out the ports section
-    #   - "8088:8000"
     volumes:
       - /volume1/docker/fpl-optimization/data:/app/data
-    # restart: unless-stopped  # This is still useful
+    # restart: unless-stopped
     environment:
       - PYTHONPATH=/app
-    command: python solve_regular.py # Add command section.
+    # No 'command' needed here. We'll use docker exec.
