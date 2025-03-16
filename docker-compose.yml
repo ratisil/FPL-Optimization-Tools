@@ -5,6 +5,4 @@ services:
     build: .
     container_name: fpl_optimization_tools
     volumes:
-      - /volume1/docker/fpl-optimization/output:/fpl-optimization/run/data
-    stdin_open: true
-    tty: true
+      - .:/fpl-optimization
