@@ -1,8 +1,7 @@
-version: '3'
-
 services:
   app:
     build: .
     container_name: fpl_optimization_tools
-    volumes:
-      - /volume1/docker/fpl-optimization:/fpl-optimization
+    # Remove the volumes block entirely
+    # volumes:
+    #   - .:/fpl-optimization
