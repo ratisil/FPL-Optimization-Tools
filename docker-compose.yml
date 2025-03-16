@@ -9,4 +9,3 @@ services:
     # restart: unless-stopped
     environment:
       - PYTHONPATH=/app
-    # No 'command' needed here. We'll use docker exec.
