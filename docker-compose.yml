@@ -8,6 +8,6 @@ services:
       - "8058:8000"  # Expose port 8000 on your Synology
     volumes:
       - /volume1/docker/fpl-optimization/data:/app/data  # Mount the data directory
-    restart: unless-stopped # Restart the container if it crashes, but not on manual stop
+    #restart: unless-stopped # Restart the container if it crashes, but not on manual stop
     environment:
       - PYTHONPATH=/app
