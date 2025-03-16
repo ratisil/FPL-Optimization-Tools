@@ -1,7 +1,8 @@
+version: '3'
+
 services:
   app:
     build: .
     container_name: fpl_optimization_tools
-    # Remove the following volume line:
-    # volumes:
-    #   - .:/fpl-optimization
+    volumes:
+      - .:/fpl-optimization
