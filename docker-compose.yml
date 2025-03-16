@@ -4,10 +4,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8058:8000"  # Expose port 8000 on your Synology
+    # ports:  <-- Remove or comment out the ports section
+    #   - "8088:8000"
     volumes:
-      - /volume1/docker/fpl-optimization/data:/app/data  # Mount the data directory
-    #restart: unless-stopped # Restart the container if it crashes, but not on manual stop
+      - /volume1/docker/fpl-optimization/data:/app/data
+    restart: unless-stopped  # This is still useful
     environment:
       - PYTHONPATH=/app
+    command: python solve_regular.py # Add command section.
