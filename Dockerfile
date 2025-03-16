@@ -24,4 +24,4 @@ WORKDIR /fpl-optimization/run/
 USER app_user
 
 ENTRYPOINT [ "python", "solve_regular.py" ]
-CMD [ "bash" ]
+# CMD [ "bash" ]  <-- Remove this line!
