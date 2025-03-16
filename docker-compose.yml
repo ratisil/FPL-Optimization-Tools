@@ -2,5 +2,6 @@ services:
   app:
     build: .
     container_name: fpl_optimization_tools
-    volumes:
-      - /volume1/docker/fpl-optimization:/fpl-optimization
+    # Remove the following volume line:
+    # volumes:
+    #   - .:/fpl-optimization
