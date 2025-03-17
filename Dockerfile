@@ -7,30 +7,15 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Install HiGHS solver (using the new URL)
-RUN echo "Starting HiGHS installation" && \
-    wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.9.0.tar.gz -O highs.tar.gz && \
-    echo "Downloaded highs.tar.gz" && \
-    ls -l highs.tar.gz && \
+RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.9.0.tar.gz -O highs.tar.gz && \
     tar -xf highs.tar.gz && \
-    echo "Extracted highs.tar.gz" && \
-    ls -l && \
-    cd $(find . -maxdepth 1 -type d -name "HiGHS-*") && \
-    echo "Changed directory to HiGHS source" && \
-    pwd && \
-    ls -l && \
+    cd HiGHS-1.9.0 && \
     mkdir build && cd build && \
-    echo "Created and entered build directory" && \
-    pwd && \
-    ls -l && \
     cmake .. && \
-    echo "CMake configuration complete" && \
     make -j$(nproc) && \
-    echo "Make complete" && \
     make install && \
-    echo "Make install complete" && \
-    ls -l /usr/local/bin && \
     cd ../.. && \
-    rm -rf HiGHS-* highs.tar.gz
+    rm -rf HiGHS-1.9.0 highs.tar.gz
 
 RUN useradd --create-home --shell /bin/bash app_user
 
@@ -45,8 +30,8 @@ RUN chmod -R 755 /fpl-optimization
 
 WORKDIR /fpl-optimization/run/
 
-# Create tmp folder
-RUN mkdir /fpl-optimization/run/tmp
+# Create tmp folder (safely, even if it exists)
+RUN mkdir -p /fpl-optimization/run/tmp
 
 USER app_user
 
