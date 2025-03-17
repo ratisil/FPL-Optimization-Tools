@@ -1,15 +1,16 @@
 FROM python:3.8-slim
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends git wget \
+  && apt-get install -y --no-install-recommends git wget ca-certificates \
+  && update-ca-certificates \
   && apt-get purge -y --auto-remove \
   && rm -rf /var/lib/apt/lists/*
 
-# Install HiGHS solver
-RUN wget https://github.com/ERGO-Code/HiGHS/releases/download/v1.6.0/highs-v1.6.0-Linux.tar.gz && \
-    tar -xf highs-v1.6.0-Linux.tar.gz && \
-    cp highs-v1.6.0-Linux/bin/highs /usr/local/bin/ && \
-    rm -rf highs-v1.6.0-Linux highs-v1.6.0-Linux.tar.gz
+# Install HiGHS solver (using the new URL)
+RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.9.0.tar.gz -O highs.tar.gz && \
+    tar -xf highs.tar.gz && \
+    cp HiGHS-1.9.0/build/bin/highs /usr/local/bin/ && \
+    rm -rf HiGHS-1.9.0 highs.tar.gz
 
 RUN useradd --create-home --shell /bin/bash app_user
 
