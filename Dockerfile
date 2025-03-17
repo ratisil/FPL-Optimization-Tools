@@ -45,6 +45,9 @@ RUN chmod -R 755 /fpl-optimization
 
 WORKDIR /fpl-optimization/run/
 
+# Create tmp folder
+RUN mkdir /fpl-optimization/run/tmp
+
 USER app_user
 
 ENTRYPOINT [ "python", "solve_regular.py" ]
