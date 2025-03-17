@@ -9,3 +9,5 @@ services:
     # restart: unless-stopped
     environment:
       - PYTHONPATH=/app
+    stdin_open: true  # Add this line
+    tty: true        # Add this line
