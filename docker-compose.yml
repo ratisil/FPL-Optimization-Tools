@@ -5,10 +5,11 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - /volume1/docker/fpl-optimization/data:/fpl-optimization/data  # Input data
-      - /volume1/docker/fpl-optimization/output:/fpl-optimization/run/tmp # Output data
+      - /volume1/docker/fpl-optimization/data:/fpl-optimization/data
+      - /volume1/docker/fpl-optimization/output:/fpl-optimization/run/tmp # Keep for solver result
     # restart: unless-stopped
     environment:
-      - PYTHONPATH=/app  # Not strictly necessary, as /app is no longer in the image
-    stdin_open: true  # Keep STDIN open for docker exec
-    tty: true        # Allocate a TTY for docker exec
+      - PYTHONPATH=/app
+    stdin_open: true
+    tty: true
+    command: python /fpl-optimization/data/download_data.py # Add this line

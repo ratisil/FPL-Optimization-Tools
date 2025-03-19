@@ -5,3 +5,6 @@ fuzzywuzzy
 python-Levenshtein
 matplotlib
 pytest
+requests
+beautifulsoup4
+selenium

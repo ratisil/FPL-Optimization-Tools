@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  fpl-optimizer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - /volume1/docker/fpl-optimization/data:/fpl-optimization/data  # Input data
+      - /volume1/docker/fpl-optimization/output:/fpl-optimization/run/tmp # Output data
+    # restart: unless-stopped
+    environment:
+      - PYTHONPATH=/app  # Not strictly necessary, as /app is no longer in the image
+    stdin_open: true  # Keep STDIN open for docker exec
+    tty: true        # Allocate a TTY for docker exec
