@@ -35,5 +35,5 @@ RUN mkdir -p /fpl-optimization/run/tmp
 
 USER app_user
 
-ENTRYPOINT python solve_regular.py  # Shell form!
-# No CMD
+ENTRYPOINT ["/bin/sh", "-c"]  # Use a shell as the entrypoint
+CMD ["python", "solve_regular.py"] # Still best practice to define command.
