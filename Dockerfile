@@ -25,7 +25,6 @@ WORKDIR /fpl-optimization
 
 COPY . .
 
-RUN sed -i 's/^pandas$/pandas=>2.2.3/' requirements.txt
 RUN python -m pip install -r requirements.txt
 
 RUN chown -R app_user /fpl-optimization
