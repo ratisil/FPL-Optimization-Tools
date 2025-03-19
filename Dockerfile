@@ -17,12 +17,15 @@ RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.9.0.tar.gz -O h
     cd ../.. && \
     rm -rf HiGHS-1.9.0 highs.tar.gz
 
+
+
 RUN useradd --create-home --shell /bin/bash app_user
 
 WORKDIR /fpl-optimization
 
 COPY . .
 
+RUN sed -i 's/^pandas$/pandas=>2.2.3/' requirements.txt
 RUN python -m pip install -r requirements.txt
 
 RUN chown -R app_user /fpl-optimization

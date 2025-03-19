@@ -1,4 +1,4 @@
-pandas==2.2.3
+pandas
 numpy
 sasoptpy>=1.0.5a0
 fuzzywuzzy
