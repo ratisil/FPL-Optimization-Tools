@@ -10,6 +10,6 @@ services:
     # restart: unless-stopped
     environment:
       - PYTHONPATH=/app
-    stdin_open: true
+    stdin_open: true  # Keep these for interactive use
     tty: true
-    command: tail -f /dev/null  # Keep the container running
+    # command: tail -f /dev/null  <- REMOVE THIS (it's now in the Dockerfile)
