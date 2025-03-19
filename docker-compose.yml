@@ -12,4 +12,3 @@ services:
       - PYTHONPATH=/app  # Not strictly necessary, as /app is no longer in the image
     stdin_open: true  # Keep STDIN open for docker exec
     tty: true        # Allocate a TTY for docker exec
-    command: tail -f /dev/null  # Add this line!
