@@ -7,9 +7,8 @@ services:
     volumes:
       - /volume1/docker/fpl-optimization/data:/fpl-optimization/data
       - /volume1/docker/fpl-optimization/output:/fpl-optimization/run/tmp
-    # restart: unless-stopped
+    restart: unless-stopped
     environment:
       - PYTHONPATH=/app
     stdin_open: true  # Keep these for interactive use
     tty: true
-    # command: tail -f /dev/null  <- REMOVE THIS (it's now in the Dockerfile)
