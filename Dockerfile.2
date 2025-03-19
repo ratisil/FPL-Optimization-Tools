@@ -6,7 +6,7 @@ RUN apt-get update \
   && apt-get purge -y --auto-remove \
   && rm -rf /var/lib/apt/lists/*
 
-# Install HiGHS solver
+# Install HiGHS solver (using the new URL)
 RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.9.0.tar.gz -O highs.tar.gz && \
     tar -xf highs.tar.gz && \
     cd HiGHS-1.9.0 && \
@@ -30,10 +30,10 @@ RUN chmod -R 755 /fpl-optimization
 
 WORKDIR /fpl-optimization/run/
 
-# Create tmp folder
+# Create tmp folder (safely, even if it exists)
 RUN mkdir -p /fpl-optimization/run/tmp
 
 USER app_user
 
-ENTRYPOINT [ "python" ]  # Just the interpreter
-CMD [ "solve_regular.py" ]  # The script to run
+ENTRYPOINT [ "python", "solve_regular.py" ]
+# NO CMD HERE
