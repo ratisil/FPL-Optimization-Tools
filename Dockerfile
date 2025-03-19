@@ -6,11 +6,13 @@ RUN apt-get update \
   && apt-get purge -y --auto-remove \
   && rm -rf /var/lib/apt/lists/*
 
-# Install Google Chrome (stable)
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+# Install Google Chrome (stable) - Improved Method
+RUN set -x \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
     && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends google-chrome-stable
+    && apt-get update -y \
+    && apt-get install -y --no-install-recommends google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install ChromeDriver (matching Chrome version)
 RUN CHROME_VERSION=$(google-chrome --version | cut -d ' ' -f 3 | cut -d '.' -f 1) \
