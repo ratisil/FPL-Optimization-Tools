@@ -25,7 +25,9 @@ WORKDIR /fpl-optimization
 
 COPY . .
 
-RUN python -m pip install -r requirements.txt
+# Upgrade pip and install packages without cache
+RUN python -m pip install --upgrade pip
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
 RUN chown -R app_user /fpl-optimization
 RUN chmod -R 755 /fpl-optimization
