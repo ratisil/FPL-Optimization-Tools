@@ -1,4 +1,4 @@
-FROM python:3.8-slim
+FROM python:3.11-slim
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends git wget ca-certificates build-essential cmake \
@@ -17,15 +17,15 @@ RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.9.0.tar.gz -O h
     cd ../.. && \
     rm -rf HiGHS-1.9.0 highs.tar.gz
 
-
-
 RUN useradd --create-home --shell /bin/bash app_user
 
 WORKDIR /fpl-optimization
 
 COPY . .
 
-RUN python -m pip install -r requirements.txt
+# Upgrade pip and install packages without cache
+RUN python -m pip install --upgrade pip
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
 RUN chown -R app_user /fpl-optimization
 RUN chmod -R 755 /fpl-optimization
