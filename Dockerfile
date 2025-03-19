@@ -35,5 +35,5 @@ RUN mkdir -p /fpl-optimization/run/tmp
 
 USER app_user
 
-ENTRYPOINT [ "python" ]  # Just the interpreter
-CMD [ "solve_regular.py" ]  # The script to run
+ENTRYPOINT python solve_regular.py  # Shell form!
+# No CMD
