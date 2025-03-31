@@ -7,15 +7,15 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Install HiGHS solver
-RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.9.0.tar.gz -O highs.tar.gz && \
+RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.10.0.tar.gz -O highs.tar.gz && \
     tar -xf highs.tar.gz && \
-    cd HiGHS-1.9.0 && \
+    cd HiGHS-1.10.0 && \
     mkdir build && cd build && \
     cmake .. && \
     make -j$(nproc) && \
     make install && \
     cd ../.. && \
-    rm -rf HiGHS-1.9.0 highs.tar.gz
+    rm -rf HiGHS-1.10.0 highs.tar.gz
 
 RUN useradd --create-home --shell /bin/bash app_user
 
