@@ -1,17 +1,81 @@
 import os
+import json
 from concurrent.futures import ProcessPoolExecutor
 
 import pandas as pd
-from solve import solve_regular
 
+# When run as "python -m run.run_parallel" from repo root,
+# these import the local run/ modules.
+from solve import solve_regular
 from utils import get_dict_combinations
 
 
-def run_parallel_solves(chip_combinations, max_workers=None):
-    if not max_workers:
-        max_workers = os.cpu_count() - 2
+def _cpu_default():
+    # Be safe on small devices
+    c = os.cpu_count() or 1
+    return max(1, c - 2)
 
-    # these are added just to reduce the output, you can remove them or put any settings you want here
+
+def _load_overrides():
+    """
+    Load overrides from JSON.
+    Default path: /fpl-optimization/data/parallel_settings.json
+    You can change with env PARALLEL_SETTINGS.
+    """
+    cfg_path = os.environ.get(
+        "PARALLEL_SETTINGS",
+        "/fpl-optimization/data/parallel_settings.json",
+    )
+    if not os.path.exists(cfg_path):
+        return {}, None
+    try:
+        with open(cfg_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return (data if isinstance(data, dict) else {}), cfg_path
+    except Exception as e:
+        print(f"[run_parallel] WARNING: failed to load {cfg_path}: {e}")
+        return {}, cfg_path
+
+
+def run_parallel_solves(chip_combinations, max_workers=None, options=None, output_csv="chip_solve.csv"):
+    if max_workers is None:
+        max_workers = _cpu_default()
+
+    if options is None:
+        options = {
+            "verbose": False,
+            "print_result_table": False,
+            "print_decay_metrics": False,
+            "print_transfer_chip_summary": False,
+            "print_squads": False,
+        }
+
+    args = [{**options, **combination} for combination in chip_combinations]
+
+    # Run in parallel
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        results = list(executor.map(solve_regular, args))
+
+    # Concatenate results to a table
+    df = pd.concat(results).sort_values(by="score", ascending=False).reset_index(drop=True)
+    if "iter" in df.columns:
+        df = df.drop("iter", axis=1)
+    print(df)
+
+    # Save results
+    df.to_csv(output_csv, encoding="utf-8", index=False)
+    print(f"[run_parallel] Wrote {output_csv} ({len(df)} rows)")
+
+
+if __name__ == "__main__":
+    # === Defaults (used if no JSON override present) ===
+    chip_gameweeks = {
+        "use_bb": [None, 1, 2],
+        "use_wc": [],
+        "use_fh": [None, 2, 3, 4],
+        "use_tc": [],
+    }
+    max_workers = _cpu_default()
     options = {
         "verbose": False,
         "print_result_table": False,
@@ -19,34 +83,37 @@ def run_parallel_solves(chip_combinations, max_workers=None):
         "print_transfer_chip_summary": False,
         "print_squads": False,
     }
+    output_csv = "chip_solve.csv"
 
-    args = []
-    for combination in chip_combinations:
-        args.append({**options, **combination})
+    # === Load overrides from JSON (optional) ===
+    overrides, used_path = _load_overrides()
+    if overrides:
+        # chip_gameweeks override
+        if "chip_gameweeks" in overrides and isinstance(overrides["chip_gameweeks"], dict):
+            cg = overrides["chip_gameweeks"]
+            for k in ("use_bb", "use_wc", "use_fh", "use_tc"):
+                if k in cg:
+                    chip_gameweeks[k] = cg[k]
 
-    # Use ProcessPoolExecutor to run commands in parallel
-    with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        results = list(executor.map(solve_regular, args))
+        # max_workers override
+        if "max_workers" in overrides:
+            try:
+                mw = int(overrides["max_workers"])
+                if mw >= 1:
+                    max_workers = mw
+            except Exception:
+                pass
 
-    df = pd.concat(results).sort_values(by="score", ascending=False).reset_index(drop=True)
-    df = df.drop("iter", axis=1)
-    print(df)
+        # options override (merge)
+        if "options" in overrides and isinstance(overrides["options"], dict):
+            options.update(overrides["options"])
 
-    # you can save the results to a csv file if you want to, by uncommenting the line below
-    df.to_csv("chip_solve.csv", encoding="utf-8", index=False)
+        # output_csv override
+        if "output_csv" in overrides and isinstance(overrides["output_csv"], str) and overrides["output_csv"]:
+            output_csv = overrides["output_csv"]
 
+        print(f"[run_parallel] Loaded overrides from {used_path}")
 
-if __name__ == "__main__":
-    # edit the gameweeks you want to have chips available in here.
-    # in this example it means it will run solves for 11 chips combinations:
-    # no chips, bb1, bb2, fh2, fh3, fh4, bb1fh2, bb1fh3, bb1fh4, bb2fh3, bb2fh4
-    # note that this is the 3 bb options multiplied by the 4 fh options, minus the invalid combination bb2fh2
-    chip_gameweeks = {
-        "use_bb": [None, 1, 2],
-        "use_wc": [],
-        "use_fh": [None, 2, 3, 4],
-        "use_tc": [],
-    }
-
+    # Build combinations and run
     combinations = get_dict_combinations(chip_gameweeks)
-    run_parallel_solves(combinations)
+    run_parallel_solves(combinations, max_workers=max_workers, options=options, output_csv=output_csv)
