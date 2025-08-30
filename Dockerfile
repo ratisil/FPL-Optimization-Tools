@@ -2,8 +2,7 @@
 FROM python:3.13-slim
 
 ENV PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONPATH=/fpl-optimization
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # minimal deps; add build-essential+cmake if you want fallback compile of highspy
 RUN apt-get update \
@@ -11,27 +10,29 @@ RUN apt-get update \
  && update-ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
+# copy whole repo (must include dev/, run/, data/)
 WORKDIR /fpl-optimization
 COPY . .
 
 # deps
 RUN python -m pip install -U pip wheel \
  && if [ -f requirements.txt ]; then pip install -r requirements.txt; fi \
- # prefer wheel for HiGHS
+ # prefer wheel for HiGHS (small & fast). If unavailable on your arch, see fallback below.
  && pip install --only-binary=:all: -U highspy
 
-# --- If you want a compile fallback, swap the two lines above with:
+# --- If you want a compile fallback, replace the block above with:
 # RUN apt-get update && apt-get install -y --no-install-recommends build-essential cmake \
 #  && rm -rf /var/lib/apt/lists/* \
 #  && python -m pip install -U pip wheel \
 #  && if [ -f requirements.txt ]; then pip install -r requirements.txt; fi \
 #  && (pip install --only-binary=:all: -U highspy || pip install --no-binary=:all: highspy)
 
-# user + tmp
+# non-root user + tmp dir
 RUN useradd --create-home --shell /bin/bash app_user \
  && mkdir -p /fpl-optimization/run/tmp \
  && chown -R app_user /fpl-optimization
 USER app_user
 
-WORKDIR /fpl-optimization/run
-CMD ["python", "solve.py"]
+# IMPORTANT: run from repo root, execute run/ as a module so dev/ is importable
+WORKDIR /fpl-optimization
+CMD ["python", "-m", "run.solve"]
