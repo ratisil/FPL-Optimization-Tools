@@ -1,42 +1,30 @@
-FROM python:3.11-slim
+# syntax=docker/dockerfile:1
+FROM python:3.13-slim
 
+ENV PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# minimal system deps (no compiler needed if we use highspy wheels)
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends git wget ca-certificates build-essential cmake \
-  && update-ca-certificates \
-  && apt-get purge -y --auto-remove \
-  && rm -rf /var/lib/apt/lists/*
-
-# Install HiGHS solver
-RUN wget https://github.com/ERGO-Code/HiGHS/archive/refs/tags/v1.10.0.tar.gz -O highs.tar.gz && \
-    tar -xf highs.tar.gz && \
-    cd HiGHS-1.10.0 && \
-    mkdir build && cd build && \
-    cmake .. && \
-    make -j$(nproc) && \
-    make install && \
-    cd ../.. && \
-    rm -rf HiGHS-1.10.0 highs.tar.gz
-
-RUN useradd --create-home --shell /bin/bash app_user
+ && apt-get install -y --no-install-recommends git ca-certificates \
+ && update-ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /fpl-optimization
-
 COPY . .
 
-# Upgrade pip and install packages without cache
-RUN python -m pip install -r requirements.txt
-# RUN python -m pip install --upgrade pip
-# RUN python -m pip install --no-cache-dir -r requirements.txt
+# Upgrade pip and install deps
+RUN python -m pip install -U pip wheel \
+ && if [ -f requirements.txt ]; then pip install -r requirements.txt; fi \
+ # ensure HiGHS Python wrapper is latest (prefer wheel)
+ && pip install --only-binary=:all: -U highspy
 
-RUN chown -R app_user /fpl-optimization
-RUN chmod -R 755 /fpl-optimization
-
-WORKDIR /fpl-optimization/run/
-
-# Create tmp folder
-RUN mkdir -p /fpl-optimization/run/tmp
-
+# non-root user + writable tmp
+RUN useradd --create-home --shell /bin/bash app_user \
+ && mkdir -p /fpl-optimization/run/tmp \
+ && chown -R app_user /fpl-optimization
 USER app_user
 
-# ENTRYPOINT [ "python", "solve_regular.py" ]  <- REMOVE THIS
-CMD ["tail", "-f", "/dev/null"]  # Keep-alive command
+WORKDIR /fpl-optimization/run
+# run once by default; change to tail if you prefer a keep-alive container
+CMD ["python", "solve.py"]
