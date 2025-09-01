@@ -6,9 +6,10 @@ services:
       dockerfile: Dockerfile
     volumes:
       - /volume1/docker/fpl-optimization/data:/fpl-optimization/data
-      - /volume1/docker/fpl-optimization/output:/fpl-optimization/run/tmp
+      - /volume1/docker/fpl-optimization/run:/fpl-optimization/run        # mount code
+      - /volume1/docker/fpl-optimization/output:/fpl-optimization/run/tmp # overlay tmp inside run
     restart: unless-stopped
     environment:
       - PYTHONPATH=/app
-    stdin_open: true  # Keep these for interactive use
+    stdin_open: true
     tty: true
