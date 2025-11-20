@@ -15,7 +15,7 @@ from tabulate import tabulate
 from dev.solver import generate_team_json, prep_data, solve_multi_period_fpl
 from dev.visualization import create_squad_timeline
 from paths import DATA_DIR
-from utils import get_random_id, load_config_files, load_settings
+from utils import cached_request, get_random_id, load_config_files, load_settings
 
 IS_COLAB = "COLAB_GPU" in os.environ
 BINARY_THRESHOLD = 0.5
@@ -141,9 +141,9 @@ def solve_regular(runtime_options=None):
 
     if price_changes := options.get("price_changes", []):
         my_squad_ids = [x["element"] for x in my_data["picks"]]
-        with requests.Session() as s:
-            r = s.get("https://fantasy.premierleague.com/api/bootstrap-static/").json()["elements"]
-        current_prices = {x["id"]: x["now_cost"] for x in r if x["id"] in my_squad_ids}
+        fpl_data = cached_request("https://fantasy.premierleague.com/api/bootstrap-static/")
+        elements = fpl_data["elements"]
+        current_prices = {x["id"]: x["now_cost"] for x in elements if x["id"] in my_squad_ids}
         for pid, change in price_changes:
             if pid not in my_squad_ids:
                 continue
@@ -169,15 +169,11 @@ def solve_regular(runtime_options=None):
         iteration = result["iter"]
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
-        if not (os.path.exists(DATA_DIR / "results/")):
-            os.mkdir(DATA_DIR / "results/")
+        source = options.get("datasource")
+        filename = f"{source}_{stamp}_{run_id}_{iteration}"
 
-        solve_name = options.get("solve_name", "regular")
-        if options.get("binary_file_name"):
-            bfn = options.get("binary_file_name")
-            filename = f"{solve_name}_{bfn}_{stamp}_{run_id}_{iteration}"
-        else:
-            filename = f"{solve_name}_{stamp}_{run_id}_{iteration}"
+        if not os.path.exists(DATA_DIR / "results/"):
+            os.mkdir(DATA_DIR / "results/")
         result["picks"].to_csv(DATA_DIR / "results" / f"{filename}.csv", index=False)
 
         if options.get("export_image", 0) and not IS_COLAB:
