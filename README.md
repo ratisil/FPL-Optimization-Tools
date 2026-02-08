@@ -11,20 +11,31 @@ It allows users to:
 
 ## 🔧 Installation
 
-### 1. Install Python
+### 1. Install `uv`
 
-**Windows**
+`uv` handles **both Python installation and dependency management**, so you **do not need to install Python separately**.
 
-Download Python (preferably `python3.13` or later) from [python.org](https://www.python.org/downloads/).
-During installation, **make sure to check the box that says `Add Python to PATH`**.
+**Windows (PowerShell)**
 
-**macOS**
+Open PowerShell and run:
 
-You can install Python via [Homebrew](https://brew.sh/) if it’s not already installed:
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+**macOS / Linux**
 
 ```bash
-brew install python
+wget -qO- https://astral.sh/uv/install.sh | sh
 ```
+
+Restart your terminal after installation, then verify:
+
+```bash
+uv --version
+```
+
+---
 
 ### 2. Install Git
 
@@ -46,26 +57,12 @@ Open a terminal (search for *Command Prompt* in Windows) and run:
 
 ```bash
 cd Documents
-git clone https://github.com/sertalpbilal/FPL-Optimization-Tools
-cd FPL-Optimization-Tools
+git clone https://github.com/solioanalytics/open-fpl-solver.git
+cd open-fpl-solver
 ```
 
-### 4. Install Dependencies
-
-We use [`uv`](https://docs.astral.sh/uv/) for dependency management.
-Install `uv` and then install the necessary dependencies for this project.
-
-**Windows**
-
+### 4. Install Dependencies (and Python)
 ```bash
-pip install uv
-uv sync
-```
-
-**macOS**
-
-```bash
-brew install uv
 uv sync
 ```
 

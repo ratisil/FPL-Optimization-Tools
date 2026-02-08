@@ -487,9 +487,9 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((raw_gw_ft[w] >= 6 - m * (1 - ft_above_ub[w]) for w in gws), name="ft_above_ub_lb")
     model.add_constraints((raw_gw_ft[w] <= 5 + m * ft_above_ub[w] for w in gws), name="ft_above_ub_ub")
 
-    # ft_below_lb[w] == 1  <=>  raw_gw_ft[w] < 0
-    model.add_constraints((raw_gw_ft[w] <= -1 + m * (1 - ft_below_lb[w]) for w in gws), name="ft_below_lb_ub")
-    model.add_constraints((raw_gw_ft[w] >= 0 - m * ft_below_lb[w] for w in gws), name="ft_below_lb_lb")
+    # ft_below_lb[w] == 1  <=>  raw_gw_ft[w] <= 0
+    model.add_constraints((raw_gw_ft[w] <= 0 + m * (1 - ft_below_lb[w]) for w in gws), name="ft_below_lb_ub")
+    model.add_constraints((raw_gw_ft[w] >= 1 - m * ft_below_lb[w] for w in gws), name="ft_below_lb_lb")
 
     # FREE TRANSFER LOGIC
 
@@ -911,7 +911,7 @@ def solve_multi_period_fpl(data, options):
         tmp_folder = Path() / "tmp"
         tmp_folder.mkdir(exist_ok=True, parents=True)
         model.export_mps(mps_file_name)
-        print(f"Exported problem with name: {problem_name}_{problem_id}_{iteration}")
+        print(f"Exported model with name: {problem_name}_{problem_id}_{iteration}")
 
         if options.get("export_debug", False):
             with open("debug.sas", "w") as file:
